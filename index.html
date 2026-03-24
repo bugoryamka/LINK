@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Получить ссылку</title>
+    <style>
+        *, *::before, *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg: #ffffff;
+            --text: #333333;
+            --text2: #6d6d6d;
+            --border: #e8e8e8;
+            --border-h: #c4c4c4;
+            --accent: #17ac10;
+            --accent-h: #128a0c;
+            --error: #e84545;
+            --input-bg: #f9f9f9;
+            --card-bg: #ffffff;
+            --font: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
+            --mono: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace;
+        }
+
+        html {
+            font-size: 16px;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        body {
+            font-family: var(--font);
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.55;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+        }
+
+        .container { width: 100%; max-width: 520px; }
+
+        .top-bar {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding-bottom: 16px;
+            margin-bottom: 24px;
+            border-bottom: 1px solid var(--border);
+            user-select: none;
+        }
+
+        .top-bar svg { width: 20px; height: 20px; flex-shrink: 0; }
+
+        .top-bar span {
+            font-size: .8125rem;
+            font-weight: 600;
+            letter-spacing: .02em;
+            text-transform: uppercase;
+            color: var(--text2);
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 32px 28px;
+            transition: border-color .2s;
+        }
+
+        .card:hover { border-color: var(--border-h); }
+
+        .label {
+            font-size: .75rem;
+            font-weight: 600;
+            letter-spacing: .04em;
+            text-transform: uppercase;
+            color: var(--accent);
+            margin-bottom: 12px;
+        }
+
+        .desc { font-size: .9375rem; line-height: 1.6; margin-bottom: 8px; }
+
+        .math {
+            font-family: var(--mono);
+            font-size: .875rem;
+            background: var(--input-bg);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 14px 16px;
+            margin: 16px 0;
+            line-height: 1.65;
+        }
+
+        .hint {
+            font-size: .8125rem;
+            color: var(--text2);
+            line-height: 1.55;
+            margin-bottom: 24px;
+        }
+
+        .hint em {
+            font-style: normal;
+            font-family: var(--mono);
+            font-size: .8rem;
+            background: var(--input-bg);
+            border: 1px solid var(--border);
+            border-radius: 3px;
+            padding: 1px 5px;
+        }
+
+        .divider { height: 1px; background: var(--border); border: none; margin: 24px 0; }
+
+        .form-group { display: flex; gap: 10px; align-items: stretch; }
+
+        .input {
+            flex: 1;
+            font-family: var(--mono);
+            font-size: .9375rem;
+            padding: 10px 14px;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            background: var(--input-bg);
+            color: var(--text);
+            outline: none;
+            transition: border-color .2s, box-shadow .2s;
+        }
+
+        .input::placeholder { color: #b0b0b0; }
+
+        .input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 2px rgba(23,172,16,.12);
+            background: #fff;
+        }
+
+        .btn {
+            font-family: var(--font);
+            font-size: .8125rem;
+            font-weight: 600;
+            letter-spacing: .02em;
+            padding: 10px 22px;
+            border: 1px solid var(--accent);
+            border-radius: 4px;
+            background: var(--accent);
+            color: #fff;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: background .15s, border-color .15s, transform .1s;
+        }
+
+        .btn:hover { background: var(--accent-h); border-color: var(--accent-h); }
+        .btn:active { transform: scale(.97); }
+        .btn:disabled { opacity: .5; cursor: not-allowed; transform: none; }
+
+        .msg {
+            margin-top: 20px;
+            padding: 14px 16px;
+            border-radius: 4px;
+            font-size: .875rem;
+            line-height: 1.5;
+            display: none;
+            animation: fadeIn .3s ease;
+        }
+
+        .msg--err { background: #fef2f2; border: 1px solid #fecaca; color: var(--error); }
+        .msg--ok { background: #f0fdf0; border: 1px solid #bbf7b7; color: #15803d; }
+
+        .msg a {
+            color: var(--accent);
+            font-weight: 600;
+            text-decoration: none;
+            border-bottom: 1px solid transparent;
+            transition: border-color .15s;
+            word-break: break-all;
+        }
+
+        .msg a:hover { border-bottom-color: var(--accent); }
+
+        .arrow { display: inline-block; margin-left: 4px; transition: transform .15s; }
+        .msg a:hover .arrow { transform: translateX(3px); }
+
+        .footer {
+            margin-top: 20px;
+            text-align: center;
+            font-size: .6875rem;
+            color: #c4c4c4;
+            letter-spacing: .03em;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .shake { animation: shake .4s ease; }
+
+        @keyframes shake {
+            0%,100% { transform: translateX(0); }
+            20% { transform: translateX(-6px); }
+            40% { transform: translateX(6px); }
+            60% { transform: translateX(-4px); }
+            80% { transform: translateX(4px); }
+        }
+
+        @media(max-width:560px) {
+            body { padding: 16px; align-items: flex-start; padding-top: 48px; }
+            .card { padding: 24px 20px; }
+            .form-group { flex-direction: column; }
+            .btn { text-align: center; padding: 12px 22px; }
+            .math { font-size: .8125rem; padding: 12px 14px; }
+        }
+
+        @media(max-width:360px) {
+            .card { padding: 20px 16px; }
+            .desc { font-size: .875rem; }
+        }
+
+        @media(prefers-color-scheme:dark) {
+            :root {
+                --bg: #191919; --text: #e0e0e0; --text2: #999;
+                --border: #333; --border-h: #555;
+                --input-bg: #222; --card-bg: #1e1e1e;
+            }
+            .msg--err { background: #2d1f1f; border-color: #5c2a2a; color: #f87171; }
+            .msg--ok { background: #1a2e1a; border-color: #2d5a2d; color: #4ade80; }
+            .msg a { color: #4ade80; }
+            .input:focus { background: var(--input-bg); }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+
+    <div class="top-bar">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5">
+            <rect x="2" y="9" width="16" height="9" rx="1.5"/>
+            <path d="M6 9V6a4 4 0 1 1 8 0v3"/>
+        </svg>
+        <span>Доступ по паролю</span>
+    </div>
+
+    <div class="card">
+
+        <div class="label">Задача</div>
+
+        <p class="desc">Чтобы получить ссылку, решите задачу:</p>
+
+        <div class="math">
+            Число увеличили на 20%, а&nbsp;потом уменьшили на&nbsp;25%.
+            В&nbsp;итоге получилось&nbsp;96.<br>
+            Найти первоначальное число.
+        </div>
+
+        <p class="hint">
+            Ответ введите в поле ниже целым числом, без&nbsp;остатка
+            (пример: <em>34</em>, <em>20</em>, <em>2</em>, <em>14</em>…)
+        </p>
+
+        <hr class="divider">
+
+        <form id="f" autocomplete="off">
+            <div class="form-group">
+                <input type="text" id="pw" class="input" placeholder="Ваш ответ…" inputmode="numeric" autofocus required>
+                <button type="submit" class="btn" id="btn">Проверить</button>
+            </div>
+        </form>
+
+        <div id="msg" class="msg"></div>
+
+    </div>
+
+    <div class="footer">Одна попытка — один шаг ближе</div>
+
+</div>
+
+<script>
+    /*
+        ========================================
+        НАСТРОЙКИ — меняйте здесь:
+        ========================================
+    */
+    const PASSWORD = '106';                              // правильный ответ (пароль)
+    const LINK     = 'https://telemost.yandex.ru/j/74680277776066';  // ссылка, которая откроется
+    /*
+        ========================================
+    */
+
+    const form  = document.getElementById('f');
+    const input = document.getElementById('pw');
+    const btn   = document.getElementById('btn');
+    const msg   = document.getElementById('msg');
+
+    function esc(s) {
+        const d = document.createElement('div');
+        d.appendChild(document.createTextNode(s));
+        return d.innerHTML;
+    }
+
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        const v = input.value.trim();
+        if (!v) { input.focus(); return; }
+
+        msg.style.display = 'none';
+
+        if (v === PASSWORD) {
+            msg.className = 'msg msg--ok';
+            msg.innerHTML =
+                '✓ Верно! Вот ваша ссылка:<br>' +
+                '<a href="' + esc(LINK) + '" target="_blank" rel="noopener">' +
+                esc(LINK) +
+                ' <span class="arrow">→</span></a>';
+            msg.style.display = 'block';
+            input.disabled = true;
+            btn.disabled = true;
+            btn.textContent = 'Готово';
+        } else {
+            msg.className = 'msg msg--err';
+            msg.textContent = 'Неверный ответ. Попробуйте ещё раз.';
+            msg.style.display = 'block';
+            input.classList.add('shake');
+            setTimeout(function() { input.classList.remove('shake'); }, 400);
+            input.select();
+        }
+    });
+</script>
+
+</body>
+</html>
