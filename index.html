@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>СОЗВОН</title>
+    <title>Созвон</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
 
@@ -52,12 +52,34 @@
             align-items: center;
             justify-content: center;
             padding: 24px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* ── DVD Bouncing Video ── */
+        #dvd {
+            position: fixed;
+            z-index: 0;
+            border-radius: 6px;
+            overflow: hidden;
+            box-shadow: 0 0 30px rgba(0,0,0,0.6), 0 0 2px rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.06);
+            pointer-events: none;
+        }
+
+        #dvd video {
+            display: block;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
         }
 
         /* ── Container ── */
         .container {
             width: 100%;
             max-width: 500px;
+            position: relative;
+            z-index: 1;
         }
 
         /* ── Top bar ── */
@@ -110,13 +132,14 @@
             border-radius: var(--radius);
             padding: 28px 24px;
             transition: border-color 0.2s;
+            backdrop-filter: blur(8px);
+            background: rgba(28, 28, 32, 0.92);
         }
 
         .card:hover {
             border-color: var(--border-hover);
         }
 
-        /* ── Section label ── */
         .section-label {
             font-size: 11px;
             font-weight: 600;
@@ -126,7 +149,6 @@
             margin-bottom: 16px;
         }
 
-        /* ── Task ── */
         .task-title {
             font-size: 14px;
             font-weight: 500;
@@ -146,6 +168,7 @@
             margin-bottom: 16px;
             font-family: var(--mono);
             letter-spacing: -0.01em;
+            white-space: pre-line;
         }
 
         .task-hint {
@@ -165,7 +188,6 @@
             color: var(--text2);
         }
 
-        /* ── Divider ── */
         .divider {
             height: 1px;
             background: var(--border);
@@ -173,7 +195,6 @@
             margin: 20px 0;
         }
 
-        /* ── Form ── */
         .form-row {
             display: flex;
             gap: 8px;
@@ -193,9 +214,7 @@
             transition: border-color 0.2s, box-shadow 0.2s;
         }
 
-        .input::placeholder {
-            color: var(--text3);
-        }
+        .input::placeholder { color: var(--text3); }
 
         .input:focus {
             border-color: var(--accent);
@@ -223,17 +242,9 @@
             color: #fff;
         }
 
-        .btn:active {
-            transform: scale(0.97);
-        }
+        .btn:active { transform: scale(0.97); }
+        .btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
 
-        .btn:disabled {
-            opacity: 0.4;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        /* ── Message ── */
         .msg {
             margin-top: 16px;
             padding: 12px 14px;
@@ -265,9 +276,7 @@
             word-break: break-all;
         }
 
-        .msg a:hover {
-            border-bottom-color: var(--green);
-        }
+        .msg a:hover { border-bottom-color: var(--green); }
 
         .arrow {
             display: inline-block;
@@ -276,11 +285,8 @@
             font-size: 12px;
         }
 
-        .msg a:hover .arrow {
-            transform: translateX(3px);
-        }
+        .msg a:hover .arrow { transform: translateX(3px); }
 
-        /* ── Footer ── */
         .footer {
             margin-top: 16px;
             text-align: center;
@@ -289,29 +295,12 @@
             letter-spacing: 0.02em;
         }
 
-        /* ── Loading dots ── */
-        .loading::after {
-            content: '';
-            animation: dots 1.2s steps(4) infinite;
-        }
-
-        @keyframes dots {
-            0%   { content: ''; }
-            25%  { content: '.'; }
-            50%  { content: '..'; }
-            75%  { content: '...'; }
-            100% { content: ''; }
-        }
-
-        /* ── Animations ── */
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(-4px); }
             to   { opacity: 1; transform: translateY(0); }
         }
 
-        .shake {
-            animation: shake 0.4s ease;
-        }
+        .shake { animation: shake 0.4s ease; }
 
         @keyframes shake {
             0%, 100% { transform: translateX(0); }
@@ -321,49 +310,30 @@
             80%  { transform: translateX(3px); }
         }
 
-        /* ── Responsive ── */
         @media (max-width: 560px) {
-            body {
-                padding: 16px;
-                align-items: flex-start;
-                padding-top: 40px;
-            }
-
-            .card {
-                padding: 22px 18px;
-            }
-
-            .form-row {
-                flex-direction: column;
-            }
-
-            .btn {
-                text-align: center;
-                padding: 11px 20px;
-            }
-
-            .task-body {
-                font-size: 12px;
-                padding: 14px;
-            }
+            body { padding: 16px; align-items: flex-start; padding-top: 40px; }
+            .card { padding: 22px 18px; }
+            .form-row { flex-direction: column; }
+            .btn { text-align: center; padding: 11px 20px; }
+            .task-body { font-size: 12px; padding: 14px; }
         }
 
         @media (max-width: 360px) {
-            .card {
-                padding: 18px 14px;
-            }
-
-            .task-title {
-                font-size: 13px;
-            }
+            .card { padding: 18px 14px; }
+            .task-title { font-size: 13px; }
         }
     </style>
 </head>
 <body>
 
+<!-- DVD Bouncing Video -->
+<div id="dvd">
+    <video src="video.mp4" autoplay muted loop playsinline></video>
+</div>
+
+<!-- Main Content -->
 <div class="container">
 
-    <!-- Top bar -->
     <div class="top-bar">
         <div class="top-bar__left">
             <span class="logo"><b>✶✶</b></span>
@@ -372,7 +342,6 @@
         </div>
     </div>
 
-    <!-- Card -->
     <div class="card">
 
         <div class="section-label">Условие</div>
@@ -381,13 +350,11 @@
             Чтобы получить ссылку, решите задачу:
         </p>
 
-        <div class="task-body">
-Число увеличили на 20%,
+        <div class="task-body">Число увеличили на 20%,
 а потом уменьшили на 25%.
 В итоге получилось 96.
 
-Найти первоначальное число.
-        </div>
+Найти первоначальное число.</div>
 
         <p class="task-hint">
             Ответ введите в поле ниже целым числом, без&nbsp;остатка
@@ -400,15 +367,7 @@
 
         <form id="f" autocomplete="off">
             <div class="form-row">
-                <input
-                    type="text"
-                    id="pw"
-                    class="input"
-                    placeholder="Введите число…"
-                    inputmode="numeric"
-                    autofocus
-                    required
-                >
+                <input type="text" id="pw" class="input" placeholder="Введите число…" inputmode="numeric" autofocus required>
                 <button type="submit" class="btn" id="btn">Проверить</button>
             </div>
         </form>
@@ -417,12 +376,116 @@
 
     </div>
 
-    <div class="footer">Одна попытка — один шаг ближе</div>
+    <div class="footer">Не хочешь срать - не мучай жопу</div>
 
 </div>
 
 <script>
 (function() {
+
+    /* ══════════════════════════════════
+       DVD BOUNCING VIDEO
+    ══════════════════════════════════ */
+
+    const dvd = document.getElementById('dvd');
+
+    function calcSize() {
+        const w = window.innerWidth;
+        const h = window.innerHeight;
+        const boxW = Math.round(Math.min(w, h) / 3.5);
+        const boxH = Math.round(boxW * 9 / 16);
+        return { boxW, boxH, screenW: w, screenH: h };
+    }
+
+    let { boxW, boxH, screenW, screenH } = calcSize();
+
+    dvd.style.width  = boxW + 'px';
+    dvd.style.height = boxH + 'px';
+
+    let x = Math.random() * (screenW - boxW);
+    let y = Math.random() * (screenH - boxH);
+
+    /* Скорость: пикселей за кадр */
+    let baseSpeed = Math.max(1.2, Math.min(screenW, screenH) / 600);
+    let vx = baseSpeed * (Math.random() > 0.5 ? 1 : -1);
+    let vy = baseSpeed * (Math.random() > 0.5 ? 1 : -1);
+
+    /* Цвета при отскоке */
+    const hues = [0, 30, 60, 120, 180, 210, 270, 300, 330];
+    let hueIndex = 0;
+
+    function setGlow() {
+        const hue = hues[hueIndex % hues.length];
+        dvd.style.boxShadow =
+            '0 0 30px hsla(' + hue + ',80%,55%,0.35), ' +
+            '0 0 2px hsla(' + hue + ',80%,70%,0.15)';
+        dvd.style.borderColor = 'hsla(' + hue + ',60%,50%,0.25)';
+        hueIndex++;
+    }
+
+    setGlow();
+
+    function animate() {
+        x += vx;
+        y += vy;
+
+        let bounced = false;
+
+        if (x <= 0) {
+            x = 0;
+            vx = Math.abs(vx);
+            bounced = true;
+        } else if (x + boxW >= screenW) {
+            x = screenW - boxW;
+            vx = -Math.abs(vx);
+            bounced = true;
+        }
+
+        if (y <= 0) {
+            y = 0;
+            vy = Math.abs(vy);
+            bounced = true;
+        } else if (y + boxH >= screenH) {
+            y = screenH - boxH;
+            vy = -Math.abs(vy);
+            bounced = true;
+        }
+
+        if (bounced) setGlow();
+
+        dvd.style.transform = 'translate(' + x + 'px,' + y + 'px)';
+
+        requestAnimationFrame(animate);
+    }
+
+    dvd.style.position = 'fixed';
+    dvd.style.left = '0';
+    dvd.style.top  = '0';
+    dvd.style.willChange = 'transform';
+
+    requestAnimationFrame(animate);
+
+    /* Ресайз */
+    window.addEventListener('resize', function() {
+        const s = calcSize();
+        screenW = s.screenW;
+        screenH = s.screenH;
+        boxW = s.boxW;
+        boxH = s.boxH;
+        dvd.style.width  = boxW + 'px';
+        dvd.style.height = boxH + 'px';
+
+        if (x + boxW > screenW) x = screenW - boxW;
+        if (y + boxH > screenH) y = screenH - boxH;
+        if (x < 0) x = 0;
+        if (y < 0) y = 0;
+    });
+
+
+    /* ══════════════════════════════════
+       PASSWORD CHECK
+    ══════════════════════════════════ */
+
     const form  = document.getElementById('f');
     const input = document.getElementById('pw');
     const btn   = document.getElementById('btn');
@@ -431,16 +494,14 @@
     let PASSWORD = null;
     let LINK = null;
 
-    /* ── Загружаем pw.txt и link.txt ── */
     async function loadFiles() {
         try {
             const [pwRes, linkRes] = await Promise.all([
                 fetch('pw.txt'),
                 fetch('link.txt')
             ]);
-
-            if (pwRes.ok) PASSWORD = (await pwRes.text()).trim();
-            if (linkRes.ok) LINK = (await linkRes.text()).trim();
+            if (pwRes.ok)   PASSWORD = (await pwRes.text()).trim();
+            if (linkRes.ok) LINK     = (await linkRes.text()).trim();
         } catch (e) {
             console.error('Не удалось загрузить файлы:', e);
         }
@@ -448,14 +509,12 @@
 
     loadFiles();
 
-    /* ── Escape HTML ── */
     function esc(s) {
         const d = document.createElement('div');
         d.appendChild(document.createTextNode(s));
         return d.innerHTML;
     }
 
-    /* ── Submit ── */
     form.addEventListener('submit', function(e) {
         e.preventDefault();
 
@@ -464,7 +523,6 @@
 
         msg.style.display = 'none';
 
-        /* Файлы ещё не загрузились */
         if (PASSWORD === null || LINK === null) {
             msg.className = 'msg msg--err';
             msg.textContent = 'Файлы ещё загружаются, подождите секунду…';
@@ -473,7 +531,6 @@
         }
 
         if (v === PASSWORD) {
-            /* ✓ Верно */
             msg.className = 'msg msg--ok';
             msg.innerHTML =
                 '✓ Верно! Вот ваша ссылка:<br><br>' +
@@ -485,7 +542,6 @@
             btn.disabled = true;
             btn.textContent = 'Готово';
         } else {
-            /* ✗ Неверно */
             msg.className = 'msg msg--err';
             msg.textContent = 'Неверный ответ. Попробуйте ещё раз.';
             msg.style.display = 'block';
@@ -494,6 +550,7 @@
             input.select();
         }
     });
+
 })();
 </script>
 
