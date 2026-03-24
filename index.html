@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Access</title>
+  <style>
+    :root {
+      --bg: #f5f5f0;
+      --fg: #111;
+      --muted: #666;
+      --accent: #d90000;
+      --line: #d9d9d9;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: Helvetica, Arial, sans-serif;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+    }
+
+    .wrap {
+      width: min(92vw, 560px);
+      padding: 40px 32px;
+      border-top: 6px solid var(--accent);
+    }
+
+    .label {
+      font-size: 12px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      margin-bottom: 18px;
+      color: var(--muted);
+    }
+
+    h1 {
+      margin: 0 0 28px;
+      font-size: clamp(36px, 7vw, 72px);
+      line-height: 0.95;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .form {
+      display: grid;
+      gap: 14px;
+    }
+
+    input {
+      width: 100%;
+      padding: 16px 0;
+      border: none;
+      border-bottom: 2px solid var(--fg);
+      background: transparent;
+      font-size: 20px;
+      outline: none;
+    }
+
+    input::placeholder {
+      color: #999;
+    }
+
+    button,
+    a.link-btn {
+      appearance: none;
+      border: 1px solid var(--fg);
+      background: transparent;
+      color: var(--fg);
+      padding: 14px 18px;
+      font-size: 13px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-block;
+      transition: 0.2s ease;
+    }
+
+    button:hover,
+    a.link-btn:hover {
+      background: var(--fg);
+      color: var(--bg);
+    }
+
+    .message {
+      min-height: 20px;
+      font-size: 13px;
+      letter-spacing: 0.04em;
+      color: var(--muted);
+    }
+
+    .error {
+      color: var(--accent);
+    }
+
+    .success {
+      color: var(--fg);
+    }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <div class="label">Restricted Access</div>
+    <h1>Enter<br>Code</h1>
+
+    <div class="form">
+      <input id="passwordInput" type="password" placeholder="Password" />
+      <button id="submitBtn">Verify</button>
+      <div id="message" class="message"></div>
+      <div id="result"></div>
+    </div>
+  </main>
+
+  <script>
+    const PASSWORD = "demo123";
+    const TARGET_LINK = "https://example.com";
+
+    const input = document.getElementById("passwordInput");
+    const button = document.getElementById("submitBtn");
+    const message = document.getElementById("message");
+    const result = document.getElementById("result");
+
+    function checkPassword() {
+      const value = input.value.trim();
+
+      result.innerHTML = "";
+
+      if (!value) {
+        message.textContent = "Введите пароль.";
+        message.className = "message error";
+        return;
+      }
+
+      if (value === PASSWORD) {
+        message.textContent = "Доступ разрешён.";
+        message.className = "message success";
+
+        const link = document.createElement("a");
+        link.href = TARGET_LINK;
+        link.textContent = "Open Link";
+        link.className = "link-btn";
+        link.target = "_blank";
+        link.rel = "noopener noreferrer";
+
+        result.appendChild(link);
+      } else {
+        message.textContent = "Неверный пароль.";
+        message.className = "message error";
+      }
+    }
+
+    button.addEventListener("click", checkPassword);
+    input.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") checkPassword();
+    });
+  </script>
+</body>
+</html>
